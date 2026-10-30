@@ -31,6 +31,19 @@ def contriever_get_emb(model, *args, **kwargs):
     import torch
     from transformers import AutoTokenizer
 
+    # dict-input fix: VectorStore.get_embedding passes tokenised tensors, not a string
+    if args and isinstance(args[0], dict):
+        inp = args[0]
+        with torch.no_grad():
+            out = model(**inp)
+        mask = inp['attention_mask']
+        if hasattr(out, 'last_hidden_state'):
+            out = out.last_hidden_state
+        if out.dim() == 3:
+            h = out.masked_fill(~mask[..., None].bool(), 0.0)
+            return (h.sum(dim=1) / mask.sum(dim=1)[..., None]).view(-1).cpu().tolist()
+        return out.reshape(-1).cpu().tolist()
+
     # 1. Find the text
     text = kwargs.get('text', next((arg for arg in args if isinstance(arg, str) and not arg.startswith('facebook/')), None))
     if text is None and len(args) > 0: text = args[0]

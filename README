@@ -61,3 +61,47 @@ Set `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1` on the HPC, because it has no inte
 ## Credits
 
 Based on RAG-WM by wanghao512. The fingerprint and assignment scripts were adapted from another student group's multi-user implementation. The green-word idea follows WARD (Jovanovic, Staab and Vechev, ICLR 2025) and the multi-user watermark paper by Cohen, Hoover and Schoenbach (IEEE S&P 2025).
+
+## Testing, fixes and known issues (final sprint)
+
+### Embedding fault found and fixed
+`contriever_get_emb` in `src/utils.py` returned a vector of zeros whenever the vector store called it
+(it expected a string but the store passes tokenised tensors). Every stored and queried vector was zero,
+so retrieval was comparing ties. The function now handles the tokenised input.
+After pulling this fix, rebuild the vectors and re-inject the watermark facts:
+
+    python reembed_all.py
+    python inject_user_assignments.py --clean_db 1
+
+Retrieval-based results measured before this fix should not be trusted. This includes the earlier
+92% to 42% verification result, which has not been rechecked.
+
+Also note: `VectorStore.update_context(id, text)` appends text to a document, it does not replace it.
+
+### Knowledge-base poisoning test (`poison_test.py`)
+Damages 0/25/50/75/100% of the 9 watermark documents (3 users x 3 facts) in three ways and counts how many
+facts still verify (document in the top 5 for the injection query and at least 60% of the watermark words
+still present). Documents are restored after every trial.
+
+    python poison_test.py --top_k 5 --trials 5
+
+Results (facts still verified, out of 9, average of 5 trials, baseline 9/9):
+
+| Documents poisoned | Overwrite | Add unrelated text | Delete half the words |
+|---|---|---|---|
+| 0% | 9.0 | 9.0 | 9.0 |
+| 25% | 7.0 | 7.0 | 8.0 |
+| 50% | 5.0 | 5.4 | 7.2 |
+| 75% | 2.0 | 3.0 | 6.4 |
+| 100% | 0.0 | 1.2 | 6.0 |
+
+This tests edits to stored text only. It is not the embedding-perturbation attack from the threat model.
+
+### Embedding perturbation script (`embed_attack.py`, not validated)
+Nudges the stored vector of each watermark document (directed away from its query, or random as a control)
+with increasing size and records how many facts still verify. It was tested on a mock store only and has
+not been run on the corrected database, so there are no results to report.
+
+### Not finished
+Real fingerprints and the full binomial-test detection from the multi-user specification, the gradient-based
+embedding attack, and a recheck of verification accuracy at full scale.
