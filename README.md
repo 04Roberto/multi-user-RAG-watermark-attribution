@@ -60,4 +60,4 @@ Set `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1` on the HPC, because it has no inte
 
 ## Credits
 
-Based on RAG-WM by wanghao512. The fingerprint and assignment scripts were adapted from another student group's multi-user implementation. The green-word idea follows WARD (Jovanovic, Staab and Vechev, ICLR 2025) and the multi-user watermark paper by Cohen, Hoover and Schoenbach (IEEE S&P 2025).
+Based on RAG-WM by wanghao512. The fingerprint and assignment scripts were adapted from another student group's multi-user implementation  (https://github.com/AndrewH-30017SUT/ragwm-multi-user-prototype-sem1/tree/main/multi_user) . The green-word idea follows WARD (Jovanovic, Staab and Vechev, ICLR 2025) and the multi-user watermark paper by Cohen, Hoover and Schoenbach (IEEE S&P 2025).
