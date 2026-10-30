@@ -1,0 +1,18 @@
+{
+    "model_info":{
+        "provider":"llama",
+        "name":"/fred/oz479/ICT30017-P39-RAG-Watermarking-for-ownership-user-atribution/ragwm/weights/llama-7b-chat"
+    },
+    "api_key_info": {
+        "api_key_use": 0,
+        "api_keys": ["dummy-key"]
+    },
+    "params":{
+        "temperature":0.01,
+        "seed":100,
+        "device":"cuda",
+        "max_output_tokens":4096,
+        "device_ids":[0, 1],
+        "gpus": [0, 1]
+    }
+}
